@@ -78,6 +78,7 @@ def plot_rest_categories(db):
     plt.title('Types of Restaurant on South University Ave')
     plt.xlabel('Number of Restaurants')
     plt.ylabel('Restaurant Categories')
+    plt.xticks(range(1, 5))
     plt.tight_layout()
     plt.show()
 
