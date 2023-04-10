@@ -114,7 +114,7 @@ def get_highest_rating(db): #Do this through DB as well
     """
     restaurant_data = load_rest_data(db)
     
-    # Create dictionary with restaurant categories and their total ratings and counts
+    # Create dictionary with restaurant categories and their total ratings
     category_ratings = {}
     for restaurant, data in restaurant_data.items():
         category = data['category']
@@ -153,7 +153,7 @@ def get_highest_rating(db): #Do this through DB as well
             building_ratings[building]['total_rating'] += rating
             building_ratings[building]['count'] += 1
     
-    # Calculate average rating for each building and find highest-rated building
+    # Calculate average rating for each building
     highest_building = None
     highest_building_rating = 0
     building_ratings_list = []
@@ -168,7 +168,7 @@ def get_highest_rating(db): #Do this through DB as well
     category_ratings_list = sorted(category_ratings_list, key=lambda x: x[1], reverse=True)
     building_ratings_list = sorted(building_ratings_list, key=lambda x: x[1], reverse=True)
     
-    # Plot bar charts of category and building ratings
+    # Plot 2 bar charts in one figure
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8))
     ax1.barh([x[0] for x in reversed(category_ratings_list)], [x[1] for x in reversed(category_ratings_list)], color='darkblue')
     #ax1.barh([x[0] for x in category_ratings_list], [x[1] for x in category_ratings_list], color='darkblue')
@@ -189,7 +189,12 @@ def get_highest_rating(db): #Do this through DB as well
 
 #Try calling your functions here
 def main():
+    # tried it, and it all works!
+    # plot_rest_categories('South_U_Restaurants.db')
+    # get_highest_rating('South_U_Restaurants.db')
+    # find_rest_in_building(1335, 'South_U_Restaurants.db')
     pass
+
 
 class TestHW8(unittest.TestCase):
     def setUp(self):
