@@ -112,7 +112,80 @@ def get_highest_rating(db): #Do this through DB as well
     The second bar chart displays the buildings along the y-axis and their ratings along the x-axis 
     in descending order (by rating).
     """
-    pass
+    restaurant_data = load_rest_data(db)
+    
+    # Create dictionary with restaurant categories and their total ratings and counts
+    category_ratings = {}
+    for restaurant, data in restaurant_data.items():
+        category = data['category']
+        rating = data['rating']
+        if category not in category_ratings:
+            category_ratings[category] = {'total_rating': rating, 'count': 1}
+        else:
+            category_ratings[category]['total_rating'] += rating
+            category_ratings[category]['count'] += 1
+    
+    # Calculate average rating for each category and find highest-rated category
+    highest_category = None
+    highest_category_rating = 0
+    category_ratings_list = []
+    for category, data in category_ratings.items():
+        avg_rating = data['total_rating'] / data['count']
+        category_ratings_list.append((category, avg_rating))
+        if avg_rating > highest_category_rating:
+            highest_category = category
+            highest_category_rating = avg_rating
+    
+    # Create dictionary with building numbers and their total ratings and counts
+    building_ratings = {}
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+    cur.execute('SELECT building_id, rating FROM restaurants')
+    results = cur.fetchall()
+    for result in results:
+        building_id = result[0]
+        rating = result[1]
+        cur.execute('SELECT building FROM buildings WHERE id = ?', (building_id,))
+        building = cur.fetchone()[0]
+        if building not in building_ratings:
+            building_ratings[building] = {'total_rating': rating, 'count': 1}
+        else:
+            building_ratings[building]['total_rating'] += rating
+            building_ratings[building]['count'] += 1
+    
+    # Calculate average rating for each building and find highest-rated building
+    highest_building = None
+    highest_building_rating = 0
+    building_ratings_list = []
+    for building, data in building_ratings.items():
+        avg_rating = data['total_rating'] / data['count']
+        building_ratings_list.append((building, avg_rating))
+        if avg_rating > highest_building_rating:
+            highest_building = building
+            highest_building_rating = avg_rating
+    
+    # Sort category and building ratings lists by descending rating
+    category_ratings_list = sorted(category_ratings_list, key=lambda x: x[1], reverse=True)
+    building_ratings_list = sorted(building_ratings_list, key=lambda x: x[1], reverse=True)
+    
+    # Plot bar charts of category and building ratings
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8))
+    ax1.barh([x[0] for x in reversed(category_ratings_list)], [x[1] for x in reversed(category_ratings_list)], color='darkblue')
+    #ax1.barh([x[0] for x in category_ratings_list], [x[1] for x in category_ratings_list], color='darkblue')
+    ax1.set_title('Average Restaurant Ratings by Category')
+    ax1.set_xlabel('Ratings')
+    ax1.set_ylabel('Categories')
+    ax1.set_xticks(range(6))
+    ax2.barh(range(1, len(building_ratings_list)+1), [x[1] for x in reversed(building_ratings_list)], tick_label=[x[0] for x in reversed(building_ratings_list)], color='darkblue')
+    # ax2.barh([x[0] for x in building_ratings_list], [x[1] for x in building_ratings_list], color='darkblue')
+    ax2.set_title('Average Restaurant Ratings by Building')
+    ax2.set_xlabel('Ratings')
+    ax2.set_ylabel('Buildings')
+    ax2.set_xticks(range(6))
+    plt.tight_layout()
+    plt.show()
+    
+    return [(highest_category, highest_category_rating), (highest_building, highest_building_rating)]
 
 #Try calling your functions here
 def main():
